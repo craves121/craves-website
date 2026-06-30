@@ -15,12 +15,52 @@ export default function ProductCard({ weight, price }) {
 
       image: "/favicon.svg",
 
-      handler: function (response) {
+      handler: async function (response) {
 
-        alert(
-          "Payment Successful 🎉\nPayment ID: " +
-          response.razorpay_payment_id
-        )
+        const order = {
+          orderId: "ORD" + Date.now(),
+          paymentId: response.razorpay_payment_id,
+          name: "Customer",
+          phone: "9999999999",
+          address: "Not Provided",
+          product: weight,
+          quantity: 1,
+          amount: price,
+        };
+
+        try {
+
+          const res = await fetch(
+            "https://script.google.com/macros/s/AKfycbzEbaFupFaEeJ20miijcjalONAtOhN7qEkNlv2RsWpU685YAG_4mEM_pu3GD66tM57hwQ/exec",
+            {
+              method: "POST",
+              headers: {
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify(order),
+            }
+          );
+
+          const result = await res.json();
+
+          if (result.success) {
+            alert(
+              "✅ Payment Successful!\n\nOrder saved successfully.\n\nPayment ID:\n" +
+              response.razorpay_payment_id
+            );
+          } else {
+            alert("Payment successful, but order could not be saved.");
+          }
+
+        } catch (error) {
+
+          console.error(error);
+
+          alert(
+            "Payment successful, but failed to save order."
+          );
+
+        }
 
       },
 
@@ -37,12 +77,12 @@ export default function ProductCard({ weight, price }) {
       theme: {
         color: "#22c55e",
       },
-    }
+    };
 
-    const razor = new window.Razorpay(options)
+    const razor = new window.Razorpay(options);
 
-    razor.open()
-  }
+    razor.open();
+  };
 
   return (
 
@@ -65,5 +105,6 @@ export default function ProductCard({ weight, price }) {
 
     </div>
 
-  )
+  );
+
 }
